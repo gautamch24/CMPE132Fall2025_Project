@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - SJSU Library{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4"><i class="bi bi-people"></i> User Management</h1>
+        <p class="lead">Provisioning & De-provisioning Control Panel</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-shield-exclamation"></i> All Users</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Roles</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>
+                                    <strong>{{ user.username }}</strong>
+                                    {% if user.id == current_user.id %}
+                                        <span class="badge bg-info">You</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% for role in user.roles %}
+                                        <span class="badge bg-secondary">{{ role.name }}</span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if user.active %}
+                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Disabled</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    {% if user.id != current_user.id %}
+                                        <form method="POST" action="{{ url_for('admin.toggle_user', user_id=user.id) }}" style="display: inline;">
+                                            {% if user.active %}
+                                                <button type="submit" class="btn btn-sm btn-danger" 
+                                                        onclick="return confirm('Are you sure you want to disable {{ user.username }}?');">
+                                                    <i class="bi bi-x-circle"></i> Disable
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-sm btn-success"
+                                                        onclick="return confirm('Are you sure you want to enable {{ user.username }}?');">
+                                                    <i class="bi bi-check-circle"></i> Enable
+                                                </button>
+                                            {% endif %}
+                                        </form>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h5 class="alert-heading"><i class="bi bi-info-circle"></i> De-provisioning Information</h5>
+            <p class="mb-0">
+                <strong>Disabling a user:</strong> Prevents login and access to all resources while preserving their data.
+                This is a reversible action - you can re-enable users at any time.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-success">
+            <i class="bi bi-person-plus"></i> Add New User
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
